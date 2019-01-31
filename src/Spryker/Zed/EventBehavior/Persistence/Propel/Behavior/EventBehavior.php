@@ -269,6 +269,7 @@ public function enableEvent()
         $dataEventEntityForeignKeys = static::EVENT_CHANGE_ENTITY_FOREIGN_KEYS;
         $dataEventEntityModifiedColumns = static::EVENT_CHANGE_ENTITY_MODIFIED_COLUMNS;
         $dataEventName = static::EVENT_CHANGE_NAME;
+        $parameters = $this->getParameter();
 
         return "
 /**
@@ -289,16 +290,23 @@ protected function addSaveEventToMemory()
             return;
         }
     }
-    
-    \$data = [
-        '$dataEventEntityName' => '$tableName',
-        '$dataEventEntityId' => \$this->getPrimaryKey(),
-        '$dataEventName' => \$this->_eventName,
-        '$dataEventEntityForeignKeys' => \$this->getForeignKeys(),
-        '$dataEventEntityModifiedColumns' => \$this->_modifiedColumns,
-    ];
 
-    \$this->saveEventBehaviorEntityChange(\$data);
+    if(export_all_columns_to_queue) {
+        \$data = [all_data];
+        \$this->saveEventBehaviorEntityChange(\$data);
+    }
+    
+    if(disable_original_behavior) {
+        \$data = [
+            '$dataEventEntityName' => '$tableName',
+            '$dataEventEntityId' => \$this->getPrimaryKey(),
+            '$dataEventName' => \$this->_eventName,
+            '$dataEventEntityForeignKeys' => \$this->getForeignKeys(),
+            '$dataEventEntityModifiedColumns' => \$this->_modifiedColumns,
+        ];
+
+        \$this->saveEventBehaviorEntityChange(\$data);        
+    }
 
     unset(\$this->_eventName);
     unset(\$this->_modifiedColumns);
